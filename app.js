@@ -1,6 +1,5 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
-var columnify = require('columnify')
 
 var connection = mysql.createConnection({
      host: "localhost",
@@ -109,7 +108,8 @@ function viewDepartments() {
      var query = "SELECT * FROM department";
      connection.query(query, function (err, res) {
           if (err) throw err;
-          console.log(columnify(res));
+          console.table(res);
+          console.log("");
           init();
      });
 }
@@ -118,62 +118,106 @@ function viewRoles() {
      var query = "SELECT role_id, role_title FROM role";
      connection.query(query, function (err, res) {
           if (err) throw err;
-          console.log(columnify(res));
+          console.table(res, ["role_id", "role_title"]);
+          console.log("");
           init();
      });
 }
 
 function viewEmployees() {
-     var query = "SELECT employee.first_name, employee.last_name, role.role_title, " + 
-                   "department.department_name FROM employee " + 
-                   "LEFT JOIN role on employee.role_id = role.role_id " +
-                   "LEFT JOIN department on role.department_id = department.department_id";
-     connection.query(query, function (err, res) {
+     var query = "SELECT employee.first_name, employee.last_name, role.role_title, " +
+          "department.department_name FROM employee " +
+          "LEFT JOIN role on employee.role_id = role.role_id " +
+          "LEFT JOIN department on role.department_id = department.department_id";
+          connection.query(query, function (err, res) {
           if (err) throw err;
-          console.log(columnify(res));
+          console.table(res);
+          console.log("");
           init();
      });
 }
 
 function viewEmployeesByDepartment() {
+     let array = [];
      var query = "SELECT department_id as value, department_name as name FROM department";
      connection.query(query, function (err, res) {
           if (err) throw err;
-          let array = JSON.parse(JSON.stringify(res));
-          console.log(array); 
-     });
+          array = JSON.parse(JSON.stringify(res));
 
-//      inquirer
-//     .prompt({
-//       name: "song",
-//       type: "input",
-//       message: "What song would you like to look for?"
-//     })
-//     .then(function(answer) {
-//       console.log(answer.song);
-//       connection.query("SELECT * FROM top5000 WHERE ?", { song: answer.song }, function(err, res) {
-//         if (err) throw err;
-//         console.log(
-//           "Position: " +
-//             res[0].position +
-//             " || Song: " +
-//             res[0].song +
-//             " || Artist: " +
-//             res[0].artist +
-//             " || Year: " +
-//             res[0].year
-//         );
-//         runSearch();
-//       });
-//     });
+          inquirer
+          .prompt({
+               name: 'department',
+               type: 'list',
+               message: 'Which department\'s employees do you want to see?',
+               choices: array
+          })
+          .then(function (answer) {
+               connection.query("SELECT employee.first_name, employee.last_name, role.role_title," +
+                    "department.department_name FROM employee LEFT JOIN role on employee.role_id = " +
+                    "role.role_id LEFT JOIN department on role.department_id = department.department_id " +
+                    "WHERE department.department_id = ?", [ answer.department] , function (err, res) {
+                    if (err) throw err;
+                    console.table(res);
+                    console.log("");
+                    init();
+               });    
+          }); 
+     });    
 }
 
 function viewEmployeesByManager() {
+     let array = [];
+     var query = "SELECT employee.employee_id as value, CONCAT(employee.first_name, ' ', employee.last_name) as name " + 
+     "FROM employee INNER JOIN role ON employee.role_id = role.role_id WHERE role.manager = 1";
+     connection.query(query, function (err, res) {
+          if (err) throw err;
+          array = JSON.parse(JSON.stringify(res));
+          console.log(array); 
 
+          inquirer
+          .prompt({
+               name: 'manager',
+               type: 'list',
+               message: 'Which department\'s employees do you want to see?',
+               choices: array
+          })
+          .then(function (answer) {
+               connection.query("SELECT employee.employee_id, employee.first_name, employee.last_name " +
+                    "FROM employee WHERE manager_id = ?", [ answer.manager] , function (err, res) {
+                    if (err) throw err;
+                    console.table(res);
+                    console.log("");
+                    init();
+               });    
+          }); 
+     });
 }
 
 function viewBudget() {
+     let array = [];
+     var query = "SELECT department_id as value, department_name as name FROM department";
+     connection.query(query, function (err, res) {
+          if (err) throw err;
+          array = JSON.parse(JSON.stringify(res));
 
+          inquirer
+          .prompt({
+               name: 'department',
+               type: 'list',
+               message: 'Which department\'s budget do you want to see?',
+               choices: array
+          })
+          .then(function (answer) {
+               connection.query("SELECT role.department_id, department.department_name, " + 
+                    "SUM(role.role_salary) FROM role INNER JOIN department on " + 
+                    "role.department_id = department.department_id WHERE role.department_id = ?", [ answer.department] , function (err, res) {
+                    if (err) throw err;
+                    console.table(res);
+                    console.log("");
+                    init();
+               });    
+          }); 
+     }); 
 }
 
 function addDepartment() {
@@ -205,30 +249,29 @@ function removeRole() {
 }
 
 function removeEmployee() {
+     const obj = [
+          {
+               name: 'ali',
+               id: 1
+          },
+          {
+               name: 'veli',
+               id: 2
+          }
+     ]
 
+     inquirer
+          .prompt([
+               {
+                    type: 'list',
+                    name: 'employee',
+                    message: 'Which is better?',
+                    choices: obj,
+               },
+          ])
+          .then(answers => {
+               console.info('Answer:', answers.employee);
+          });
 }
 
 
-// const obj = [
-//      {
-//           name: 'ali',
-//           value: 1
-//      },
-//      {
-//           name: 'veli',
-//           value: 2
-//      }
-// ]
-
-// inquirer
-//      .prompt([
-//           {
-//                type: 'list',
-//                name: 'employee',
-//                message: 'Which is better?',
-//                choices: obj,
-//           },
-//      ])
-//      .then(answers => {
-//           console.info('Answer:', answers.employee);
-//      });

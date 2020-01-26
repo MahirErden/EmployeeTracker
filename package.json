@@ -23,7 +23,6 @@
   },
   "homepage": "https://github.com/MahirErden/EmployeeTracker#readme",
   "dependencies": {
-    "columnify": "^1.5.4",
     "inquirer": "^7.0.3",
     "mysql": "^2.18.1"
   }
