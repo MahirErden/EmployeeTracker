@@ -50,7 +50,7 @@ WHERE department.department_id = ?;
 /* View All Employees by Manager */
 
 SELECT employee.employee_id, employee.first_name, employee.last_name
-FROM employee INNER JOIN role ON employee.role_id = role.role_id WHERE role.manager = ?;
+FROM employee INNER JOIN role ON employee.role_id = role.role_id WHERE role.manager = 1;
 
 SELECT employee.employee_id, employee.first_name, employee.last_name
 FROM employee WHERE manager_id = ?;  
@@ -62,7 +62,7 @@ FROM employee WHERE manager_id = ?;
 SELECT role_id, role_title FROM role;
 /* Who is the employee's manager */
 SELECT employee.employee_id, employee.first_name, employee.last_name
-FROM employee INNER JOIN role ON employee.role_id = role.role_id WHERE role.manager = ?;
+FROM employee INNER JOIN role ON employee.role_id = role.role_id WHERE role.manager = 1;
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ( ?, ?, ?, ?);
 
