@@ -33,7 +33,7 @@ What would you like to do?
 (Move up and down to reveal more choices)
   Answer: 15
 ```
-Some queries and their resutls listed down:
+Some queries and their results listed down:
 
 Add Employee:
 ```sh
